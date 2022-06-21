@@ -3,6 +3,13 @@ import urllib
 import bs4
 from fastapi import FastAPI
 import requests
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Config:
+    host: str
+    port: int
+    flaresolve_url: str
 
 
 def build_url(base_url, path, args_dict):
@@ -15,17 +22,17 @@ def build_url(base_url, path, args_dict):
     return urllib.parse.urlunparse(url_parts)
 
 
-config = {}
+config: Config = None
 app = FastAPI(title="Sayan's nhentai API")
 
-def read_config() -> dict:
+def read_config() -> Config:
     with open("config.json", "r") as c:
-        return json.loads(c.read())
+        return Config(**json.loads(c.read()))
 
 
 def get_from_search(query: str, page: int = 1, language: str = 'english', sort: str = 'recent'):
     r = requests.post(
-        url=config['flaresolve_url'],
+        url=config.flaresolve_url,
         json={
             "cmd": "request.get",
             "url": build_url('https://nhentai.net/', '/api/galleries/search', {
@@ -45,7 +52,7 @@ def get_from_search(query: str, page: int = 1, language: str = 'english', sort: 
 
 def get_from_code(code: int):
     r = requests.post(
-        url=config['flaresolve_url'],
+        url=config.flaresolve_url,
         json={
             "cmd": "request.get",
             # https://nhentai.net/api/gallery/177013

@@ -2,23 +2,23 @@ import requests
 import bs4
 import json
 import uvicorn
-from utils import app, get_from_code, get_from_search, read_config
+import utils
 
 
-@app.get("/gallery/{code}")
+@utils.app.get("/gallery/{code}")
 def nhentai_by_code(code: int):
-    return get_from_code(code)
+    return utils.get_from_code(code)
 
 
-@app.get("/galleries/search")
+@utils.app.get("/galleries/search")
 def nhentai_by_search(query: str, page: int = 1, sort: str = 'recent', language: str = 'english'):
-    return get_from_search(query, page, language, sort)
+    return utils.get_from_search(query, page, language, sort)
 
 
-@app.get("/galleries/all")
+@utils.app.get("/galleries/all")
 def all_nhentai(page: int = 1):
     r = requests.post(
-        url=config['flaresolve_url'],
+        url=utils.config.flaresolve_url,
         json={
             "cmd": "request.get",
             # https://nhentai.net/api/gallery/177013
@@ -31,7 +31,7 @@ def all_nhentai(page: int = 1):
 
 
 if __name__ == '__main__':
-    config = read_config()
+    utils.config = utils.read_config()
     # print(config)
-    uvicorn.run(app, host=config['host'], port=config['port'])
+    uvicorn.run(utils.app, host=utils.config.host, port=utils.config.port)
     #print(get_from_search("big breasts"))
